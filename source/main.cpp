@@ -16,8 +16,8 @@ int main(int argc, char **argv) {
 
     // The top screen has 30 rows and 50 columns
     // The bottom screen has 30 rows and 40 columns
-    Screen topScr(Coord(30, 50), &topScreen);
-    Screen bottomScr(Coord(30, 40), &bottomScreen);
+    Screen topScr(Coord(50, 30), &topScreen);
+    Screen bottomScr(Coord(40, 30), &bottomScreen);
 
     UI topUI(&topScr);
     UI bottomUI(&bottomScr);
@@ -25,18 +25,22 @@ int main(int argc, char **argv) {
     
     size_t a = 0;
 
-    Menu mainm(ColorText("| Main Menu", ""), std::vector<MENU_PAIR>({
-            {ColorText("Start", ""), [](){}}, 
-            {ColorText("Placeholder", ""), [](){}}, 
-            {ColorText("Placeholder", ""), [](){}}, 
-            {ColorText("Placeholder", ""), [](){}}, 
-            {ColorText("Placeholder", ""), [](){}}, 
-            {ColorText("End", "\x1b[31m"), [](){}}, 
+    Menu mainm(ColorText("~ Main Menu", ""), std::vector<MENU_PAIR>({
+            {ColorText("File", ""), [](){}}, 
+            {ColorText("Audio Test", ""), [](){}},
+            {ColorText("Exit", "\x1b[31m"), [](){gfxExit(); exit(0);}}, 
     }));
 
 
     bottomUI.draw_menu(mainm, a);
     bottomUI.update();
+    size_t x = 0;
+
+    topUI.render_text(&x, 1, ColorText("Uta3ds Revisited (ver0);", ""));
+    x = 0;
+    topUI.render_text(&x, 2, ColorText("Copyright 2023, FurryR, OKMT, Serix", ""));
+    x = 0;
+
     // Main loop
     while (aptMainLoop()) {
         hidScanInput();
@@ -44,7 +48,9 @@ int main(int argc, char **argv) {
         // pressed (and they weren't in the previous frame)
         u32 kDown = hidKeysDown();
 
-        if (kDown & KEY_START) break;  // break in order to return to hbmenu
+        if (kDown & KEY_A) {
+            mainm.items[a].second();
+        }  // break in order to return to hbmenu
 		if (kDown & KEY_UP) {
             if (a > 0) a--;
             else a = mainm.items.size() - 1;
@@ -61,14 +67,13 @@ int main(int argc, char **argv) {
         {
             auto t = std::time(nullptr);
             auto tm = *std::localtime(&t);
-
             std::ostringstream oss;
             oss << std::put_time(&tm, "%m/%d/%Y %H:%M:%S");
             auto str = oss.str();
-            topUI.render_log(ColorText("time->>>" + str, "").output());
+            topUI.render_text(&x, 5, ColorText("> " + str + " <", ""));
+            x = 0;
             topUI.update();
         }
-        
         
         // Flush and swap framebuffers
         gfxFlushBuffers();

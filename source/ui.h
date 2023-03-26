@@ -39,7 +39,7 @@ public:
         render_text(&x, y, p.name);
         y += 2; x = 0;
         for (size_t a = 0; a < p.items.size(); a++) {
-            render_text(&x, y, ColorText(((sel == a) ? "->" : "  ") + p.items[a].first.content, p.items[a].first.prefix));
+            render_text(&x, y, ColorText(((sel == a) ? " >" : "  ") + p.items[a].first.content, p.items[a].first.prefix));
             // render_text(&x, y, p.items[a].first);
             y++; x = 0;
         }
@@ -59,8 +59,6 @@ public:
     void clear() { screen->clear(); }
     const Coord &size() const noexcept { return screen->size(); }
     explicit UI(Screen *screen) : screen(screen) {}
-
-private:
     void render_text(size_t *x, size_t y, const ColorText &text) {
         for (auto &&s : text.output()) {
             screen->set(Coord(*x, y), s);
