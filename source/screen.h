@@ -59,7 +59,6 @@ typedef class Screen {
     }
     void show() {
         if (!dirty) return;
-        consoleSelect(handle);
         bool flag = true;
         std::string str = "";
         for (size_t y = 0; y < _size.y; y++) {
@@ -97,6 +96,7 @@ typedef class Screen {
     }
 
     bool set(const Coord &pos, const Character &chr) {
+        consoleSelect(handle);
         if (!_test(pos)) return false;
         if (current[pos.y][pos.x] != chr) {
             dirty = true;
