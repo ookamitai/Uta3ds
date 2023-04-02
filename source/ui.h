@@ -65,6 +65,37 @@ public:
             (*x)++;
         }
     }
+    void render_menubar() {
+        auto t = std::time(nullptr);
+        auto tm = *std::localtime(&t);
+        std::ostringstream oss, sec;
+
+        sec << std::put_time(&tm, "%S");
+        
+        if (std::stoi(sec.str()) % 2 == 0) {
+            oss << std::put_time(&tm, "%m/%d %H:%M");
+        } else {
+            oss << std::put_time(&tm, "%m/%d %H %M");
+        }
+
+        auto str = oss.str();
+
+        u8 level = 0;
+        PTMU_GetBatteryLevel(&level);
+        bool adapt;
+        PTMU_GetAdapterState(&adapt);
+
+        size_t x = 0;
+
+        std::string i = (level == 1 ? "    " : (level == 2 ? "#   " : (level == 3 ? "##  " : (level == 4 ? "### " : "####"))));
+
+        
+        render_text(&x, 0, ColorText(" Uta3ds                " + str + " Battery:[", "\x1b[30;47m"));
+        render_text(&x, 0, ColorText(i, level == 1 ? "\x1b[31:47m" : "\x1b[32;47m"));
+        render_text(&x, 0, ColorText((adapt ? "]+" : "] "), "\x1b[30;47m"));
+
+    }
+
     Screen *screen;
 } UI;
 

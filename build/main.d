@@ -83,7 +83,8 @@ main.o: /Users/raykura/Desktop/Programming/uta3ds/source/main.cpp \
  /opt/devkitpro/libctru/include/3ds/gdbhio_dev.h \
  /opt/devkitpro/libctru/include/3ds/3dslink.h \
  /Users/raykura/Desktop/Programming/uta3ds/source/ui.h \
- /Users/raykura/Desktop/Programming/uta3ds/source/screen.h
+ /Users/raykura/Desktop/Programming/uta3ds/source/screen.h \
+ /Users/raykura/Desktop/Programming/uta3ds/source/audio.h
 /opt/devkitpro/libctru/include/3ds.h:
 /opt/devkitpro/libctru/include/3ds/types.h:
 /opt/devkitpro/libctru/include/3ds/result.h:
@@ -169,3 +170,4 @@ main.o: /Users/raykura/Desktop/Programming/uta3ds/source/main.cpp \
 /opt/devkitpro/libctru/include/3ds/3dslink.h:
 /Users/raykura/Desktop/Programming/uta3ds/source/ui.h:
 /Users/raykura/Desktop/Programming/uta3ds/source/screen.h:
+/Users/raykura/Desktop/Programming/uta3ds/source/audio.h:
