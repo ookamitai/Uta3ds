@@ -25,21 +25,21 @@ typedef struct ColorText {
         : prefix(prefix), content(content) {}
 } ColorText;
 
-typedef std::pair<ColorText, std::function<void(void)>> MENU_PAIR;
+typedef std::pair<std::string, std::function<void(void)>> menu_pair;
 typedef struct Menu {
-    std::vector<MENU_PAIR> items;
-    ColorText name;
-    Menu(const ColorText &n, const std::vector<MENU_PAIR> &m) : items(m), name(n) {}
+    std::vector<menu_pair> items;
+    std::string name;
+    Menu(const std::string& n, const std::vector<menu_pair>& m) : items(m), name(n) {}
 } Menu;
 
 typedef struct UI {
 public:
     void draw_menu(const Menu &p, size_t sel) {
         size_t x = 0, y = 0;
-        render_text(&x, y, p.name);
+        render_text(&x, y, ColorText(p.name, ""));
         y += 2; x = 0;
         for (size_t a = 0; a < p.items.size(); a++) {
-            render_text(&x, y, ColorText(((sel == a) ? " >" : "  ") + p.items[a].first.content, p.items[a].first.prefix));
+            render_text(&x, y, ColorText(((sel == a) ? (">)" + p.items[a].first): "  "), ""));
             // render_text(&x, y, p.items[a].first);
             y++; x = 0;
         }

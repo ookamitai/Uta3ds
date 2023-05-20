@@ -6,24 +6,27 @@
 #include "ui.h"
 #include "audio.h"
 
-void InitServices() {
-    osSetSpeedupEnable(true);
-    ptmuInit();
-    romfsInit();
-    gfxInitDefault();
-    ndspInit(); 
-}
+typedef struct ServiceGuard {
+    ServiceGuard() {
+        osSetSpeedupEnable(true);
+        ptmuInit();
+        romfsInit();
+        gfxInitDefault();
+        ndspInit(); 
+    }
+    ~ServiceGuard() {
+        gfxExit(); 
+        ptmuExit();
+        romfsExit();
+        ndspExit();
+    }
+} ServiceGuard;
 
-void ExitServices() {
-    gfxExit(); 
-    ptmuExit();
-    romfsExit();
-}
 
 int main(int argc, char **argv) {
     // Use New3DS CPU speedup
 
-    InitServices();
+    ServiceGuard _;
 
     std::string TEST_AUDIO = "romfs:/m.wav";
 
@@ -43,14 +46,14 @@ int main(int argc, char **argv) {
     
     size_t a = 0;
 
-    Menu mainm(ColorText("-- Main Menu", ""), std::vector<MENU_PAIR>({
-            {ColorText("File", ""), [](){}}, 
-            {ColorText("Audio Test", ""), [&TEST_AUDIO, &topUI](){play_wav(TEST_AUDIO); return;}},
-            {ColorText("Exit", "\x1b[31m"), [](){ExitServices(); exit(0);}}, 
+    Menu main_menu(">> Main Menu", std::vector<menu_pair>({
+            {"File", [](){}}, 
+            {"Audio Test (early)", [&TEST_AUDIO, &topUI](){play_wav(TEST_AUDIO); return;}},
+            {"Quit Uta3DS", [](){exit(0);}}, 
     }));
 
 
-    bottomUI.draw_menu(mainm, a);
+    bottomUI.draw_menu(main_menu, a);
     bottomUI.update();
     size_t x = 0;
 
@@ -68,18 +71,18 @@ int main(int argc, char **argv) {
         u32 kDown = hidKeysDown();
 
         if (kDown & KEY_A) {
-            mainm.items[a].second();
+            main_menu.items[a].second();
         } 
 		if (kDown & KEY_UP) {
             if (a > 0) a--;
-            else a = mainm.items.size() - 1;
-            bottomUI.draw_menu(mainm, a);
+            else a = main_menu.items.size() - 1;
+            bottomUI.draw_menu(main_menu, a);
             bottomUI.update();  
         }
         if (kDown & KEY_DOWN) {
-            if (a < mainm.items.size() - 1) a++;
+            if (a < main_menu.items.size() - 1) a++;
             else a = 0;
-            bottomUI.draw_menu(mainm, a);
+            bottomUI.draw_menu(main_menu, a);
             bottomUI.update();  
         }
 
@@ -92,8 +95,6 @@ int main(int argc, char **argv) {
         gfxSwapBuffers();
         gspWaitForVBlank();
     }
-
-    ExitServices();
 
     return 0;
 }
