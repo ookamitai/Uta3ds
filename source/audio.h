@@ -23,15 +23,11 @@ void play_wav(const std::string& filename) {
     ndspWaveBuf waveBuf;
     ndspChnWaveBufClear(0);
     waveBuf.data_vaddr = data;
-    waveBuf.nsamples = dataSize / 2;
+    waveBuf.nsamples = 44100;
     waveBuf.looping = false;
 
     ndspChnReset(0);
     ndspChnWaveBufAdd(0, &waveBuf);
-
-    while (ndspChnIsPlaying(0)) {
-        svcSleepThread(1000000);
-    }
 
     delete[] data;
 }

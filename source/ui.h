@@ -39,11 +39,48 @@ public:
         render_text(&x, y, ColorText(p.name, ""));
         y += 2; x = 0;
         for (size_t a = 0; a < p.items.size(); a++) {
-            render_text(&x, y, ColorText(((sel == a) ? (">)" + p.items[a].first): "  "), ""));
+            render_text(&x, y, ColorText(((sel == a) ? " >" : "  ") + p.items[a].first, ""));
             // render_text(&x, y, p.items[a].first);
             y++; x = 0;
         }
     }
+    
+    bool ask_dialogue(std::string&& question, bool comformation=false) {
+        if (question.length() > 200) {
+            question = "String too long to display.";
+        }
+        auto vtext = split_by_length(question);
+
+        size_t x = 5, y = 13 - vtext.size() / 2;
+        if (!comformation)
+            render_text(&x, y, ColorText(" Ask Dialogue                 ", "\x1b[30;47m"));
+        else render_text(&x, y, ColorText(" Comformation Dialogue        ", "\x1b[30;47m"));
+        x = 5; y++;
+        render_text(&x, y, ColorText());
+        for (const auto& i : vtext) {
+            x = 5; y++;
+            render_text(&x, y, ColorText(i, ""));
+        }
+        x = 5; y++;
+        render_text(&x, y, ColorText());
+        x = 5; y++;
+        if (!comformation) 
+            render_text(&x, y, ColorText("      [A] OK  [B] Cancel      ", "\x1b[30;47m"));
+        else render_text(&x, y, ColorText("         [A] Dismiss          ", "\x1b[30;47m"));
+        update();
+
+        while(true) {
+            hidScanInput();
+            u32 kDown = hidKeysDown();
+            if (kDown & KEY_A) {
+                return true;
+            }
+            if (kDown & KEY_B) {
+                return false;
+            }
+        }
+    }
+
     void render_log(const std::vector<Character> &text) {
         size_t x = 0;
         for (; x < screen->size().x; x++) {
@@ -89,11 +126,29 @@ public:
 
         std::string i = (level == 1 ? "    " : (level == 2 ? "#   " : (level == 3 ? "##  " : (level == 4 ? "### " : "####"))));
 
-        
         render_text(&x, 0, ColorText(" Uta3ds                " + str + " Battery:[", "\x1b[30;47m"));
         render_text(&x, 0, ColorText(i, level == 1 ? "\x1b[31:47m" : "\x1b[32;47m"));
         render_text(&x, 0, ColorText((adapt ? "]+" : "] "), "\x1b[30;47m"));
+    }
 
+private:
+    std::vector<std::string> split_by_length(const std::string& str, int splitLength=30) {
+        int NumSubstrings = str.length() / splitLength;
+        std::vector<std::string> ret;
+
+        for (auto i = 0; i < NumSubstrings; i++)
+        {
+                ret.push_back(str.substr(i * splitLength, splitLength));
+        }
+
+        // If there are leftover characters, create a shorter item at the end.
+        if (str.length() % splitLength != 0)
+        {
+                ret.push_back(str.substr(splitLength * NumSubstrings));
+        }
+
+
+        return ret;
     }
 
     Screen *screen;

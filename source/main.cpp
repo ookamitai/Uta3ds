@@ -5,6 +5,7 @@
 #include <sstream>
 #include "ui.h"
 #include "audio.h"
+#include "keyboard.h"
 
 typedef struct ServiceGuard {
     ServiceGuard() {
@@ -24,10 +25,7 @@ typedef struct ServiceGuard {
 
 
 int main(int argc, char **argv) {
-    // Use New3DS CPU speedup
-
     ServiceGuard _;
-
     std::string TEST_AUDIO = "romfs:/m.wav";
 
     PrintConsole topScreen, bottomScreen;
@@ -46,9 +44,12 @@ int main(int argc, char **argv) {
     
     size_t a = 0;
 
-    Menu main_menu(">> Main Menu", std::vector<menu_pair>({
+    Menu main_menu("[Main Menu]", std::vector<menu_pair>({
             {"File", [](){}}, 
             {"Audio Test (early)", [&TEST_AUDIO, &topUI](){play_wav(TEST_AUDIO); return;}},
+            {"Keyboard Test (normal)", [&bottomUI](){from_keyboard(std::string("Test input"));}},
+            {"Keyboard Test (numpad)", [](){from_keyboard(std::string("Test input"), true); return;}},  
+            {"Dialogue Test", [&bottomUI](){bottomUI.ask_dialogue(from_keyboard(std::string("Dialogue content")), true);}},
             {"Quit Uta3DS", [](){exit(0);}}, 
     }));
 
@@ -57,9 +58,9 @@ int main(int argc, char **argv) {
     bottomUI.update();
     size_t x = 0;
 
-    topUI.render_text(&x, 2, ColorText("Uta3ds Revisited (ver0);", ""));
+    topUI.render_text(&x, 2, ColorText("  Uta3ds Revisited (ver0);", ""));
     x = 0;
-    topUI.render_text(&x, 3, ColorText("Copyright 2023, FurryR, OKMT, Serix", ""));
+    topUI.render_text(&x, 3, ColorText("  Copyright 2023, FurryR, OKMT, Serix", ""));
     x = 0;
     topUI.update();
 
@@ -72,6 +73,9 @@ int main(int argc, char **argv) {
 
         if (kDown & KEY_A) {
             main_menu.items[a].second();
+            bottomUI.clear();
+            bottomUI.draw_menu(main_menu, a);
+            bottomUI.update();
         } 
 		if (kDown & KEY_UP) {
             if (a > 0) a--;
@@ -89,7 +93,6 @@ int main(int argc, char **argv) {
         topUI.render_menubar();
         topUI.update();
 
-        
         // Flush and swap framebuffers
         gfxFlushBuffers();
         gfxSwapBuffers();
